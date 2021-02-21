@@ -1,0 +1,106 @@
+---
+title: "How Moving the Level 30 Gate Would Affect Retention Rates"
+author: "PhiPrime"
+date: "2/20/2021"
+output: slidy_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.align = 'center')
+```
+
+```{r message = FALSE}
+library(tidyverse)
+```
+
+
+## Control  
+Currently a gate level is presented to the player when they reach level thirty. These levels give the player three ways of proceeding: replaying previous levels, inviting friends to download the app, or purchasing the keys to open the gate instantly.  
+  
+
+```{r fig.height= 5}
+grid::grid.raster(png::readPNG("./Images/gate_level.png"))
+```
+
+
+
+## Alternative Placement  
+Despite these gate levels encourage the player to invite more users or purchase content, they also can negatively impact player retention rate. To measure the magnitude of this possible negative impact we designed an A/B test in which the control group encounter a gate level where it has been, level thirty, and the other half encounter one at level forty.
+
+
+## Observations  
+```{r echo = FALSE}
+dat <- read.csv("./Data/cookie_cats.csv")
+N <- dim(dat)[1]
+dat <- dat %>% mutate(userid = as.character(userid),
+                      version     = as.factor(version))
+
+## Convert retention info into one var.
+
+## Old code kept to explain formula's results
+# dat <- mutate(dat, type = case_when(
+#     !(retention_1 & retention_7) ~ 1,
+#     !retention_1 & retention_7 ~ 2
+#     retention_1 & !retention_7 ~ 3,
+#     retention_1 & retention_7 ~ 4,# ))
+
+dat <- mutate(dat, ret_type = as.factor(2*as.numeric(retention_1) +
+                as.numeric(retention_7) + 1))
+
+#count(dat, ret_type)
+dat$ret_type <- as.factor(dat$ret_type)
+levels(dat$ret_type) <- c("Full Retention", "Light Retention", 
+                          "Quit Under a Week", "Quit Within a Day")
+## While we're at it...
+levels(dat$version) <- c("gate level at 30", "gate level at 40")
+```
+
+```{r eval = FALSE}
+##Check for outliers    
+sorted <- arrange(dat, sum_gamerounds)
+list(No_attempt = sum(sorted$sum_gamerounds==0),
+     One_try = sum(sorted$sum_gamerounds==1))
+tail(sorted, 10) #One clear outlier
+
+anom <- tail(sorted, 5)$sum_gamerounds
+#sum_gamerounds is the number of rounds played 
+#within the first 14 days after install
+#this would mean that max value played on average...
+anom/13/#Because ret...1 is FALSE so they didn't play at least that day
+  24
+#160 rounds per hour! with the next closest being 9.5/hr
+#this seems like either data entry error or an observation
+# invalidated by some external factor, such as using a program to
+# play the game.
+```
+
+```{r}
+#For ease of viewing the distribution, focus on the majority
+cut <- 0.95
+exp <- filter(dat, sum_gamerounds < quantile(sum_gamerounds, cut))
+dis <- paste0("*", round((dim(exp)[1]/N)*100, 3), 
+              "% of the data is represented.")
+# paste0(dim(exp)[1], "/", N, ", ", dis)
+```
+
+
+The data we collected was from `r N` users; evenly split between the two versions. There was one outlier removed for having `r max(dat$sum_gamerounds)` rounds attempted within 13 days, removing one observation of the `r dat$version[which.max(dat$sum_gamerounds)]`. In addition to the number of rounds played and version, we also observed if the user played one day and seven days after install as a KPI of user retention rate. Below are two graphs depicting the distribution of the number of rounds played for both groups; color is added to depict user retention rates.
+
+
+```{r fig.height = 4.3, fig.width = 7}
+# Make a facet grid (version) histogram (rounds) with 
+# four colored section to represent the possible
+# retention rates. Include hline at gates
+
+ggplot(exp, aes(sum_gamerounds)) +
+  facet_grid(version~.) +
+  geom_histogram(binwidth = 10, aes(fill = ret_type)) +
+  labs(title = "Distribution of Rounds for each Testing Group",
+       fill = "Retention",
+       x = "Rounds Played",
+       y = "Number of Users",
+       caption = dis)
+```
+
+
+
