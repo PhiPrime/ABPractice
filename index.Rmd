@@ -25,7 +25,7 @@ grid::grid.raster(png::readPNG("./Images/gate_level.png"))
 
 
 ## Alternative Placement  
-Despite these gate levels encourage the player to invite more users or purchase content, they also can negatively impact player retention rate. To measure the magnitude of this possible negative impact we designed an A/B test in which the control group encounter a gate level where it has been, level thirty, and the other half encounter one at level forty.
+Despite gate levels encouraging the player to invite more users or purchase content, they also can negatively impact player retention rates. To measure the magnitude of this possible negative impact we designed an A/B test. The control group encounter a gate level where it has been, level thirty, and the other half encounter one at level forty.
 
 
 ## Observations  
@@ -84,7 +84,7 @@ dis <- paste0("*", round((dim(exp)[1]/N)*100, 3),
 ```
 
 
-The data we collected was from `r N` users; evenly split between the two versions. There was one outlier removed for having `r max(dat$sum_gamerounds)` rounds attempted within 13 days, removing one observation of the `r dat$version[which.max(dat$sum_gamerounds)]`. In addition to the number of rounds played and version, we also observed if the user played one day and seven days after install as a KPI of user retention rate. Below are two graphs depicting the distribution of the number of rounds played for both groups; color is added to depict user retention rates.
+We observed `r N` users that were randomly assigned either version of the game. One observation of the `r dat$version[which.max(dat$sum_gamerounds)]` was removed for being an outlier (over `r floor(max(dat$sum_gamerounds)/1000)` thousand rounds attempted within the 14 days). As a KPI of user retention rate, we checked for activity on the first and seventh day after install. Below are two graphs depicting the distribution of the number of rounds played for both versions; color is added to depict retention rates.
 
 
 ```{r fig.height = 4.3, fig.width = 7}
