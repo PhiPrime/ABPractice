@@ -38,4 +38,11 @@ We observed 90189 users that were randomly assigned either version of the game. 
 <img src="index_files/figure-slidy/unnamed-chunk-6-1.png" style="display: block; margin: auto;" />
 
 
+## Significance of Variation between Versions  
+<img src="index_files/figure-slidy/unnamed-chunk-7-1.png" style="display: block; margin: auto;" /><img src="index_files/figure-slidy/unnamed-chunk-7-2.png" style="display: block; margin: auto;" />
+
+
+
+<img src="index_files/figure-slidy/unnamed-chunk-9-1.png" style="display: block; margin: auto;" />
+
 

@@ -13,6 +13,8 @@ knitr::opts_chunk$set(echo = FALSE, fig.align = 'center')
 
 ```{r message = FALSE}
 library(tidyverse)
+library(caret)
+library(rattle)
 ```
 
 
@@ -90,6 +92,9 @@ We observed `r N` users that were randomly assigned either version of the game. 
 
 
 ```{r fig.height = 4.3, fig.width = 7}
+## Remove outlier found in non-evaluated section
+dat <- dat[-which.max(dat$sum_gamerounds),]
+
 # Make a facet grid (version) histogram (rounds) with 
 # four colored section to represent the possible
 # retention rates. Include hline at gates
@@ -104,5 +109,49 @@ ggplot(exp, aes(sum_gamerounds)) +
        caption = dis)
 ```
 
+
+## Significance of Variation between Versions  
+```{r}
+# find the average change in retention per rounds played for each
+# version, visualize with a line graph
+mdat <- filter(dat, sum_gamerounds < 100)
+thiDat <- filter(mdat, version == levels(version)[1])
+forDat <- filter(mdat, version == levels(version)[2])
+
+
+
+form <- as.formula(ret_type~sum_gamerounds)
+thiMod <- train(form,
+             method = "rpart",
+             mdat)
+fancyRpartPlot(thiMod$finalModel)
+
+forMod <- train(form,
+             method = "rpart",
+             forDat)
+fancyRpartPlot(forMod$finalModel)
+```
+
+```{r}
+tests <- list()
+for(r in levels(dat$ret_type)) {
+    temp <- filter(dat, ret_type==r)
+    tests[[as.numeric(temp$ret_type[1])]] <- t.test(
+      temp$sum_gamerounds[as.numeric(temp$version)==1], 
+      temp$sum_gamerounds[as.numeric(temp$version)==2], 
+      var.equal = FALSE)
+}
+names(tests) <- levels(dat$ret_type)
+#tests
+```
+
+```{r}
+pdat <- filter(dat, sum_gamerounds > 22 , sum_gamerounds <= 60)
+ggplot(pdat, aes(sum_gamerounds, color = version)) +
+  facet_grid(ret_type~.) +
+  geom_density() +
+  geom_vline(aes(xintercept = 30)) +
+  geom_vline(aes(xintercept = 40)) #Add mean for both versions too
+```
 
 
