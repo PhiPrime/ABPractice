@@ -1,7 +1,6 @@
 ---
 title: "How Moving the Level 30 Gate Would Affect Retention Rates"
 author: "PhiPrime"
-date: "2/20/2021"
 output: 
   slidy_presentation:
     keep_md: true
